@@ -1,5 +1,7 @@
 package com.iamjrp.cowin.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.JsonObject;
 import com.iamjrp.cowin.client.CowinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +14,18 @@ public class CowinController {
     @Autowired
     private CowinClient cowinClient;
 
-    private static String url = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict";
+    private static final String COWIN_URL = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict";
+    private static final int DST_ID_KHURDA = 446;
+    private static final int DST_ID_CTC = 457;
 
-    @GetMapping("/slots")
-    public String getVaccinationSlots() {
-        final ResponseEntity<Object> slots = cowinClient.getSlots(url);
-        return slots.toString();
+    @GetMapping("/kslots")
+    public String getVacSlotKhurda() throws JsonProcessingException, InterruptedException {
+        return cowinClient.getSlots(COWIN_URL, DST_ID_KHURDA);
+    }
+
+    @GetMapping("/cslots")
+    public String getVacSlotCtc() throws JsonProcessingException, InterruptedException {
+        return cowinClient.getSlots(COWIN_URL, DST_ID_CTC);
     }
 
 }
