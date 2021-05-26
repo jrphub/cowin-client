@@ -26,4 +26,9 @@ public class Message {
                 "\n <b>address</b> : " + address +
                 "\n <b>feeType</b> : " + feeType;
     }
+
+    @Override
+    public int hashCode() {
+        return (pincode+date+availableDose1+availableDose2+vaccine).hashCode();
+    }
 }

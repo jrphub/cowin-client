@@ -22,10 +22,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Set;
+import java.util.concurrent.*;
 
 @Service
 public class CowinClient {
@@ -41,6 +39,8 @@ public class CowinClient {
     public CowinClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
+
+    private static Set<Integer> hashCodeSet = new ConcurrentSkipListSet<>();
 
     public String getSlots(String requestUri, int districtId, int minAge) throws JsonProcessingException, InterruptedException {
 
@@ -90,7 +90,9 @@ public class CowinClient {
             for (Session session: sessions) {
                 if (filter.filter(session, pojo)) {
                     final Message message = getMessage(session, pojo);
-                    queue.put(message);
+                    if(hashCodeSet.add(message.hashCode())) {
+                        queue.put(message);
+                    }
                 }
             }
         }

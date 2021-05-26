@@ -18,6 +18,6 @@ public class SessionCalendarEntrySchema {
     private String from;
     private String to;
     private String fee_type;
-    private VaccineFee vaccine_fees;
+    private VaccineFee[] vaccine_fees;
     private Session[] sessions;
 }
