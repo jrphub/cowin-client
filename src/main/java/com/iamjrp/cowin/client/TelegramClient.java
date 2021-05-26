@@ -8,20 +8,24 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Service
-public class TelegramClientKhurda45 {
-    private final Logger LOG = LoggerFactory.getLogger(TelegramClientKhurda45.class);
-    private static String TOKEN = "1803734972:AAHyAva04ql-XsGl3zNAPllzBDM49dPneCw";
-    private static String chatId = "@khurda45";
+public class TelegramClient {
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
+    private String token;
+    private String chatId;
+
+    public TelegramClient(String token, String chatId) {
+        this.token = token;
+        this.chatId = chatId;
+    }
 
     //https://github.com/pengrad/java-telegram-bot-api
     public void publishMessage(Message message){
         LOG.info("Sending to Telegram...");
-        TelegramBot bot = new TelegramBot(TOKEN);
+        TelegramBot bot = new TelegramBot(token);
         SendMessage request = new SendMessage(chatId, message.toString())
                 .parseMode(ParseMode.HTML);
         bot.execute(request, new Callback<SendMessage, SendResponse>() {
@@ -35,6 +39,5 @@ public class TelegramClientKhurda45 {
                 LOG.info("Message Not Sent to Telegram:{}", e);
             }
         });
-        }
-
+    }
 }

@@ -1,5 +1,11 @@
 package com.iamjrp.cowin.utils;
 
+import com.iamjrp.cowin.client.TelegramClient;
+import com.iamjrp.cowin.filters.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -9,5 +15,49 @@ public class CowinUtil {
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         String strDate= formatter.format(date);
         return strDate;
+    }
+
+    public static HttpEntity<String> setHeader() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        headers.add("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
+        return new HttpEntity<>(headers);
+    }
+
+    public static IFilter getFilter(int districtId, int minAge) {
+        if (446 == districtId && 18 == minAge) {
+            return new FilterKhurda18();
+        } else if (446 == districtId && 45 == minAge) {
+            return new FilterKhurda45();
+        } else if (457 == districtId && 18 == minAge) {
+            return new FilterCuttack18();
+        } else if (457 == districtId && 45 == minAge) {
+            return new FilterCuttack45();
+        } else if (395 == districtId && 0 == minAge){
+            return new FilterMumbai();
+        }
+        return null;
+    }
+
+    public static TelegramClient getTelegramClient(int districtId, int minAge) {
+        String token = "";
+        String chatId = "";
+        if (446 == districtId && 18 == minAge) {
+            token = "1697658720:AAHSrZetXavhnHIwRenb2TzwhtPfZsbd6Y4";
+            chatId = "@khurda18";
+        } else if (446 == districtId && 45 == minAge) {
+            token = "1803734972:AAHyAva04ql-XsGl3zNAPllzBDM49dPneCw";
+            chatId = "@khurda45";
+        } else if (457 == districtId && 18 == minAge) {
+            token = "1821790232:AAHGeYp5Ij-Xim8hXyYyqa8W8Kpxzo6zsog";
+            chatId = "@ctc1844";
+        } else if (457 == districtId && 45 == minAge) {
+            token = "1851420198:AAHP80aHMwHIvAgBnOcNmYgAHkQE6Y-MP6M";
+            chatId = "@ctc45";
+        } else if (395 == districtId && 0 == minAge){
+            token = "1846153659:AAHzQWT5tHdByboimm8W7h5LyRMdvVDTIuI";
+            chatId = "@mumvac";
+        }
+        return new TelegramClient(token, chatId);
     }
 }

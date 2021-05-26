@@ -1,24 +1,24 @@
 package com.iamjrp.cowin.service;
 
-import com.iamjrp.cowin.client.TelegramClientDefault;
-import com.iamjrp.cowin.client.TelegramClientKhurda18;
+import com.iamjrp.cowin.client.TelegramClient;
 import com.iamjrp.cowin.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 
-public class QueueConsumerThread1 implements Runnable {
-    private final Logger LOG = LoggerFactory.getLogger(QueueConsumerThread1.class);
+public class QueueConsumerThread implements Runnable {
+    private final Logger LOG = LoggerFactory.getLogger(QueueConsumerThread.class);
 
     private final BlockingQueue<Message> queue;
+    private TelegramClient telegramClient;
 
-    public QueueConsumerThread1(BlockingQueue<Message> queue) {
+    public QueueConsumerThread(BlockingQueue<Message> queue, TelegramClient telegramClient) {
         this.queue = queue;
+        this.telegramClient = telegramClient;
     }
     @Override
     public void run() {
-        TelegramClientKhurda18 telegramClient = new TelegramClientKhurda18();
         while(true) {
             try {
                 Message takenMsg = queue.take();
