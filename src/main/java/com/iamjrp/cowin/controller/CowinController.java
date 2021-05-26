@@ -18,6 +18,8 @@ public class CowinController {
     private static final int DST_ID_KHURDA = 446;
     private static final int DST_ID_CTC = 457;
     private static final int DIST_ID_MUM = 395;
+    private static final int DIST_ID_BLR = 265;
+    private static final int DIST_ID_HYD = 581;
 
     @GetMapping("/kslots18")
     public String getVacSlotKhurda18() throws JsonProcessingException, InterruptedException {
@@ -41,6 +43,16 @@ public class CowinController {
     @GetMapping("/mslots")
     public String getVacSlotMum() throws JsonProcessingException, InterruptedException {
         return cowinClient.getSlots(COWIN_URL, DIST_ID_MUM, 0);
+    }
+
+    @GetMapping("/bslots")
+    public String getVacSlotBlr() throws JsonProcessingException, InterruptedException {
+        return cowinClient.getSlots(COWIN_URL, DIST_ID_BLR, 0);
+    }
+
+    @GetMapping("/hslots")
+    public String getVacSlotHyd() throws JsonProcessingException, InterruptedException {
+        return cowinClient.getSlots(COWIN_URL, DIST_ID_HYD, 0);
     }
 
     @GetMapping("/test")
