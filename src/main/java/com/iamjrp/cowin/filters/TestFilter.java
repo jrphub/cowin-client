@@ -3,7 +3,7 @@ package com.iamjrp.cowin.filters;
 import com.iamjrp.cowin.model.Session;
 import com.iamjrp.cowin.model.SessionCalendarEntrySchema;
 
-public class FilterMumbai implements IFilter {
+public class TestFilter implements IFilter {
 
     private final String distName = "Mumbai";
     private final int minDose1 = 5;

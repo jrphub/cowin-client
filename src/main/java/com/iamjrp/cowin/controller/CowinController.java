@@ -43,4 +43,9 @@ public class CowinController {
         return cowinClient.getSlots(COWIN_URL, DIST_ID_MUM, 0);
     }
 
+    @GetMapping("/test")
+    public String getVacSlotForTest() throws JsonProcessingException, InterruptedException {
+        return cowinClient.getSlots(COWIN_URL, DIST_ID_MUM, -1);
+    }
+
 }

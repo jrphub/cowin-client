@@ -35,6 +35,8 @@ public class CowinUtil {
             return new FilterCuttack45();
         } else if (395 == districtId && 0 == minAge){
             return new FilterMumbai();
+        } else if (395 == districtId && -1 == minAge) {
+            return new TestFilter();
         }
         return null;
     }
@@ -57,6 +59,9 @@ public class CowinUtil {
         } else if (395 == districtId && 0 == minAge){
             token = "1846153659:AAHzQWT5tHdByboimm8W7h5LyRMdvVDTIuI";
             chatId = "@mumvac";
+        } else if (395 == districtId && -1 == minAge) {
+            token = "1783244153:AAHlr8fSauey9F1aNi0GWSHoJMgIXc_FJrQ";
+            chatId = "@nojoinjrp";
         }
         return new TelegramClient(token, chatId);
     }
