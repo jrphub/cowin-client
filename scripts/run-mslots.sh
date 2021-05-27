@@ -1,5 +1,5 @@
 while true
 do
   curl -i localhost:9000/mslots
-  sleep 1m
+  sleep 10
 done

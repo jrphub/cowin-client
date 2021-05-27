@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 public class TelegramClient {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
@@ -23,10 +24,14 @@ public class TelegramClient {
     }
 
     //https://github.com/pengrad/java-telegram-bot-api
-    public void publishMessage(Message message){
+    public void publishMessage(List<Message> messages){
         LOG.info("Sending to Telegram...");
         TelegramBot bot = new TelegramBot(token);
-        SendMessage request = new SendMessage(chatId, message.toString())
+        String msgBatch = "";
+        for (Message message : messages) {
+            msgBatch += message;
+        }
+        SendMessage request = new SendMessage(chatId, msgBatch)
                 .parseMode(ParseMode.HTML);
         bot.execute(request, new Callback<SendMessage, SendResponse>() {
             @Override

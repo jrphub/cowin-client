@@ -1,6 +1,5 @@
 package com.iamjrp.cowin.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iamjrp.cowin.filters.IFilter;
@@ -8,6 +7,7 @@ import com.iamjrp.cowin.model.Message;
 import com.iamjrp.cowin.model.Session;
 import com.iamjrp.cowin.model.SessionCalendarEntrySchema;
 import com.iamjrp.cowin.service.QueueConsumerThread;
+import com.iamjrp.cowin.utils.Counter;
 import com.iamjrp.cowin.utils.CowinUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Service
@@ -42,8 +39,16 @@ public class CowinClient {
 
     private static Set<Integer> hashCodeSet = new ConcurrentSkipListSet<>();
 
-    public String getSlots(String requestUri, int districtId, int minAge) throws JsonProcessingException, InterruptedException {
+    @Autowired
+    private Counter counter;
 
+    public String getSlots(String requestUri, int districtId, int minAge) throws InterruptedException {
+        LOG.info("REST API hit counter : " + counter.getCount().get());
+        if (counter.getCount().get() == 200) {
+            LOG.info("Clearing cache ...");
+            hashCodeSet.clear(); //This will trigger full output, not the difference from prev call
+            counter.reset();
+        }
         HttpEntity<String> entity = CowinUtil.setHeader();
 
         IFilter filter = CowinUtil.getFilter(districtId, minAge);
@@ -61,6 +66,7 @@ public class CowinClient {
 
         processResponse(mapBody);
 
+        counter.increment();
         return "Message sent Successfully";
     }
 
@@ -77,25 +83,29 @@ public class CowinClient {
         final ArrayList<LinkedHashMap<String, String>> centers = Objects.requireNonNull(mapBody).get("centers");
         final ObjectMapper mapper = new ObjectMapper();
 
-        BlockingQueue<Message> queue = new LinkedBlockingQueue<>();
+        BlockingQueue<List<Message>> queue = new LinkedBlockingQueue<>();
         QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
         ExecutorService executor = Executors.newFixedThreadPool(10);
         executor.submit(consumerThread);
 
-
         for (LinkedHashMap<String, String> center: centers) {
+            List<Message> MsgForCenter = Collections.synchronizedList(new ArrayList<>());
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             SessionCalendarEntrySchema pojo = mapper.convertValue(center, SessionCalendarEntrySchema.class);
             Session[] sessions = pojo.getSessions();
             for (Session session: sessions) {
                 if (filter.filter(session, pojo)) {
                     final Message message = getMessage(session, pojo);
-                    if(hashCodeSet.add(message.hashCode())) {
-                        queue.put(message);
+                    if(hashCodeSet.add(message.hashCode())) { //This will avoid duplicate msg in cache
+                        MsgForCenter.add(message);
                     }
                 }
             }
+            if (!MsgForCenter.isEmpty()) {
+                queue.put(MsgForCenter);
+            }
         }
+
     }
 
     private Message getMessage(Session session, SessionCalendarEntrySchema pojo) {

@@ -24,11 +24,12 @@ public class Message {
                 "\n <b>dose1</b> : " + availableDose1 +
                 "\n <b>dose2</b> : " + availableDose2 +
                 "\n <b>address</b> : " + address +
-                "\n <b>feeType</b> : " + feeType;
+                "\n <b>feeType</b> : " + feeType +
+                "\n\n";
     }
 
     @Override
     public int hashCode() {
-        return (pincode+date+availableDose1+availableDose2+vaccine).hashCode();
+        return (minAgeLimit+vaccine+date+pincode).hashCode();
     }
 }
