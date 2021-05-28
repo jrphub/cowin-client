@@ -1,5 +1,5 @@
 while true
 do
   curl -i localhost:9000/hslots
-  sleep 10
+  sleep 20
 done

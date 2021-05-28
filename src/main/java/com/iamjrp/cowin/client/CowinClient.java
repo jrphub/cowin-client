@@ -42,9 +42,10 @@ public class CowinClient {
     @Autowired
     private Counter counter;
 
-    public String getSlots(String requestUri, int districtId, int minAge) throws InterruptedException {
+    public String getSlots(String requestUri, int districtId, int minAge) {
+        counter.increment();
         LOG.info("REST API hit counter : " + counter.getCount().get());
-        if (counter.getCount().get() == 200) {
+        if (counter.getCount().get() >= 200) {
             LOG.info("Clearing cache ...");
             hashCodeSet.clear(); //This will trigger full output, not the difference from prev call
             counter.reset();
@@ -59,14 +60,16 @@ public class CowinClient {
 
 
         final UriComponentsBuilder builder = getUriComponentsBuilder(requestUri, districtId);
-
-        final ResponseEntity<Object> slotsInfo =
-                restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, Object.class);
-        final LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> mapBody = (LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>>) slotsInfo.getBody();
-
-        processResponse(mapBody);
-
-        counter.increment();
+        try {
+            final ResponseEntity<Object> slotsInfo =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, Object.class);
+            final LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> mapBody =
+                    (LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>>) slotsInfo.getBody();
+            processResponse(mapBody);
+        } catch (Exception e) {
+            LOG.info("Error handling request {} : {}", builder.toUriString(), e);
+            return e.getMessage();
+        }
         return "Message sent Successfully";
     }
 
@@ -85,11 +88,11 @@ public class CowinClient {
 
         BlockingQueue<List<Message>> queue = new LinkedBlockingQueue<>();
         QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = Executors.newFixedThreadPool(5);
         executor.submit(consumerThread);
 
+        List<Message> MsgBatch = Collections.synchronizedList(new ArrayList<>());
         for (LinkedHashMap<String, String> center: centers) {
-            List<Message> MsgForCenter = Collections.synchronizedList(new ArrayList<>());
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             SessionCalendarEntrySchema pojo = mapper.convertValue(center, SessionCalendarEntrySchema.class);
             Session[] sessions = pojo.getSessions();
@@ -97,13 +100,13 @@ public class CowinClient {
                 if (filter.filter(session, pojo)) {
                     final Message message = getMessage(session, pojo);
                     if(hashCodeSet.add(message.hashCode())) { //This will avoid duplicate msg in cache
-                        MsgForCenter.add(message);
+                        MsgBatch.add(message);
                     }
                 }
             }
-            if (!MsgForCenter.isEmpty()) {
-                queue.put(MsgForCenter);
-            }
+        }
+        if (!MsgBatch.isEmpty()) {
+            queue.put(MsgBatch);
         }
 
     }

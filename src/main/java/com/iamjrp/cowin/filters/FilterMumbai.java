@@ -11,7 +11,7 @@ public class FilterMumbai implements IFilter {
 
     @Override
     public boolean filter(Session session, SessionCalendarEntrySchema pojo) {
-        return (distName.equals(pojo.getDistrict_name())
+        return (distName.equals(pojo.getDistrict_name()) && 18 == session.getMin_age_limit()
                 && (session.getAvailable_capacity_dose1() > minDose1 || session.getAvailable_capacity_dose2() > minDose2));
     }
 }
