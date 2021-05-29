@@ -1,5 +1,6 @@
 while true
 do
-  curl -i localhost:9000/kslots45
+  echo "Khurda45 - [10m] - [1 in 300]"
+  curl -i https://cowin-client.herokuapp.com/kslots45
   sleep 10m
 done

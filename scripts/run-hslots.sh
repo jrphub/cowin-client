@@ -1,5 +1,6 @@
 while true
 do
-  curl -i localhost:9000/hslots
+  echo "Hyderabad - [20] - [15 in 300]"
+  curl -i https://cowin-client.herokuapp.com/hslots
   sleep 20
 done

@@ -1,5 +1,6 @@
 while true
 do
-  curl -i localhost:9000/test
+  echo "Test - [3s] - [100 in 300]"
+  curl -i https://cowin-client.herokuapp.com/test
   sleep 3
 done

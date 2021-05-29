@@ -24,7 +24,6 @@ public class QueueConsumerThread implements Runnable {
             try {
                 List<Message> takenMsgs = queue.take();
                 if (!takenMsgs.isEmpty()) {
-                    LOG.info("Taken Message :{}", takenMsgs);
                     telegramClient.publishMessage(takenMsgs);
                 }
             } catch (InterruptedException e) {
