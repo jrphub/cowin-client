@@ -39,6 +39,8 @@ public class CowinClient {
 
     private static Set<Integer> hashCodeSet = new ConcurrentSkipListSet<>();
 
+    private static ExecutorService executor = Executors.newFixedThreadPool(10);
+
     @Autowired
     private Counter counter;
 
@@ -88,7 +90,7 @@ public class CowinClient {
 
         BlockingQueue<List<Message>> queue = new LinkedBlockingQueue<>();
         QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
-        ExecutorService executor = Executors.newFixedThreadPool(5);
+
         executor.submit(consumerThread);
 
         List<Message> MsgBatch = Collections.synchronizedList(new ArrayList<>());
