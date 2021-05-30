@@ -9,6 +9,7 @@ import com.iamjrp.cowin.model.SessionCalendarEntrySchema;
 import com.iamjrp.cowin.service.QueueConsumerThread;
 import com.iamjrp.cowin.utils.Counter;
 import com.iamjrp.cowin.utils.CowinUtil;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,9 +109,37 @@ public class CowinClient {
             }
         }
         if (!MsgBatch.isEmpty()) {
-            queue.put(MsgBatch);
+            if(MsgBatch.size() > 20) {
+                final List<Message>[] partitions = getPartitions(MsgBatch);
+                for(List<Message> partition : partitions) {
+                    queue.put(partition);
+                }
+            } else {
+                queue.put(MsgBatch);
+            }
+            
         }
 
+    }
+
+    private List<Message>[] getPartitions(List<Message> msgBatch) {
+        // Calculate the total number of partitions of size `20` each
+        int m = msgBatch.size() / 20;
+        if (msgBatch.size() % 20 != 0) {
+            m++;
+        }
+
+        // partition the list into sublists of size `20` each
+        List<List<Message>> itr = ListUtils.partition(msgBatch, 20);
+
+        // create `m` empty lists and initialize them with sublists
+        List<Message>[] partition = new ArrayList[m];
+        for (int i = 0; i < m; i++) {
+            partition[i] = new ArrayList(itr.get(i));
+        }
+
+        // return the lists
+        return partition;
     }
 
     private Message getMessage(Session session, SessionCalendarEntrySchema pojo) {

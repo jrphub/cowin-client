@@ -9,12 +9,27 @@ import com.pengrad.telegrambot.response.SendResponse;
 public class TelegramClientTest {
     public static void main(String[] args) {
         TelegramBot bot = new TelegramBot("1783244153:AAHlr8fSauey9F1aNi0GWSHoJMgIXc_FJrQ");
-        SendMessage request = new SendMessage("@nojoinjrp", "<b>Hello From Java API</b>")
-                .parseMode(ParseMode.HTML);
-                /*.disableWebPagePreview(true)
-                .disableNotification(true)
-                .replyToMessageId(1)
-                .replyMarkup(new ForceReply());*/
+        SendMessage request = new SendMessage("@nojoinjrp", "[45+][751019][COVAXIN]\n" +
+                " <b>date</b> : 31-05-2021\n" +
+                " <b>dose1</b> : 0\n" +
+                " <b>dose2</b> : 193\n" +
+                " <b>address</b> : Patrapada Bhubaneswar\n" +
+                " <b>feeType</b> : Free\n" +
+                "\n" +
+                "[45+][751019][COVAXIN]\n" +
+                " <b>date</b> : 01-06-2021\n" +
+                " <b>dose1</b> : 0\n" +
+                " <b>dose2</b> : 196\n" +
+                " <b>address</b> : Patrapada Bhubaneswar\n" +
+                " <b>feeType</b> : Free\n" +
+                "\n" +
+                "[45+][751010][COVAXIN]\n" +
+                " <b>date</b> : 31-05-2021\n" +
+                " <b>dose1</b> : 1\n" +
+                " <b>dose2</b> : 226\n" +
+                " <b>address</b> : GGP Rasulgarh\n" +
+                " <b>feeType</b> : Free\n" +
+                "\n" );
 
 // sync
         SendResponse sendResponse = bot.execute(request);
