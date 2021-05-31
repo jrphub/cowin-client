@@ -8,7 +8,6 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,12 +26,12 @@ public class TelegramClient {
     //https://github.com/pengrad/java-telegram-bot-api
     public void publishMessage(List<Message> messages){
         LOG.info("Sending to Telegram...");
-        TelegramBot bot = new TelegramBot(token);
+        TelegramBot bot = new TelegramBot(this.token);
         String msgBatch = "";
         for (Message message : messages) {
             msgBatch += message;
         }
-        SendMessage request = new SendMessage(chatId, msgBatch)
+        SendMessage request = new SendMessage(this.chatId, msgBatch)
                 .parseMode(ParseMode.HTML);
         bot.execute(request, new Callback<SendMessage, SendResponse>() {
             @Override

@@ -30,10 +30,6 @@ public class CowinClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    private IFilter filter;
-
-    private TelegramClient telegramClient;
-
     public CowinClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -57,20 +53,13 @@ public class CowinClient {
         }
         HttpEntity<String> entity = CowinUtil.setHeader();
 
-        IFilter filter = CowinUtil.getFilter(districtId, minAge);
-        setFilter(filter);
-
-        TelegramClient telegramClient = CowinUtil.getTelegramClient(districtId, minAge);
-        setTelegramClient(telegramClient);
-
-
         final UriComponentsBuilder builder = getUriComponentsBuilder(requestUri, districtId);
         try {
             final ResponseEntity<Object> slotsInfo =
                     restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, Object.class);
             final LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> mapBody =
                     (LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>>) slotsInfo.getBody();
-            processResponse(mapBody);
+            processResponse(mapBody, districtId, minAge);
         } catch (Exception e) {
             LOG.info("Error handling request {} : {}", builder.toUriString(), e);
             return e.getMessage();
@@ -87,11 +76,13 @@ public class CowinClient {
         return builder;
     }
 
-    private void processResponse(LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> mapBody) throws InterruptedException {
+    private void processResponse(LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> mapBody, int districtId, int minAge) throws InterruptedException {
         final ArrayList<LinkedHashMap<String, String>> centers = Objects.requireNonNull(mapBody).get("centers");
         final ObjectMapper mapper = new ObjectMapper();
 
         List<Message> MsgBatch = Collections.synchronizedList(new ArrayList<>());
+        IFilter filter = CowinUtil.getFilter(districtId, minAge);
+
         for (LinkedHashMap<String, String> center: centers) {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             SessionCalendarEntrySchema pojo = mapper.convertValue(center, SessionCalendarEntrySchema.class);
@@ -110,15 +101,17 @@ public class CowinClient {
                 final List<Message>[] partitions = getPartitions(MsgBatch);
                 for(List<Message> partition : partitions) {
                     queue.put(partition);
+                    TelegramClient telegramClient = CowinUtil.getTelegramClient(districtId, minAge);
+                    QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
+                    executor.submit(consumerThread);
                 }
             } else {
                 queue.put(MsgBatch);
+                TelegramClient telegramClient = CowinUtil.getTelegramClient(districtId, minAge);
+                QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
+                executor.submit(consumerThread);
             }
             
-        }
-        if (!queue.isEmpty()) {
-            QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
-            executor.submit(consumerThread);
         }
     }
 
@@ -153,13 +146,5 @@ public class CowinClient {
         message.setPincode(pojo.getPincode());
         message.setVaccine(session.getVaccine());
         return message;
-    }
-
-    public void setFilter(IFilter filter) {
-        this.filter = filter;
-    }
-
-    public void setTelegramClient(TelegramClient client) {
-        this.telegramClient = client;
     }
 }
