@@ -11,5 +11,5 @@ do
   echo "Test - [3s] - [100 in 300]"
   curl -i $URL/test
   echo -e "\n"
-  sleep 3
+  sleep 5
 done

@@ -42,6 +42,8 @@ public class CowinClient {
 
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
+    private static BlockingQueue<List<Message>> queue = new LinkedBlockingQueue<>();
+
     @Autowired
     private Counter counter;
 
@@ -89,11 +91,6 @@ public class CowinClient {
         final ArrayList<LinkedHashMap<String, String>> centers = Objects.requireNonNull(mapBody).get("centers");
         final ObjectMapper mapper = new ObjectMapper();
 
-        BlockingQueue<List<Message>> queue = new LinkedBlockingQueue<>();
-        QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
-
-        executor.submit(consumerThread);
-
         List<Message> MsgBatch = Collections.synchronizedList(new ArrayList<>());
         for (LinkedHashMap<String, String> center: centers) {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -119,7 +116,10 @@ public class CowinClient {
             }
             
         }
-
+        if (!queue.isEmpty()) {
+            QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
+            executor.submit(consumerThread);
+        }
     }
 
     private List<Message>[] getPartitions(List<Message> msgBatch) {
