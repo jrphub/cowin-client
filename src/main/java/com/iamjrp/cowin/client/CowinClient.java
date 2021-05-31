@@ -47,7 +47,7 @@ public class CowinClient {
     public String getSlots(String requestUri, int districtId, int minAge) {
         counter.increment();
         LOG.info("REST API hit counter : {} : {}", counter.getCount().get(), districtId);
-        if (counter.getCount().get() >= 5) {
+        if (counter.getCount().get() >= 200) {
             LOG.info("Clearing cache ...");
             hashCodeSet.clear(); //This will trigger full output, not the difference from prev call
             counter.reset();
