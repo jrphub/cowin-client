@@ -10,6 +10,8 @@ kpid45=`pgrep '[k]slots45'`
 cpid18=`pgrep '[c]slots18'`
 cpid45=`pgrep '[c]slots45'`
 
+klhpid=`pgrep '[k]lhslots'`
+
 kill $mpid
 kill $bpid
 kill $hpid
@@ -20,3 +22,4 @@ kill $kpid45
 kill $cpid18
 kill $cpid45
 
+kill $klhpid
