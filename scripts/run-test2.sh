@@ -9,7 +9,7 @@ fi
 while true
 do
   echo "Test - [3s] - [100 in 300]"
-  curl -i $URL/test
+  curl -i $URL/test2
   echo -e "\n"
-  sleep 10
+  sleep 15
 done

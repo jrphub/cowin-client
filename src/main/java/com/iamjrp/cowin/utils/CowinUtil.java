@@ -43,6 +43,8 @@ public class CowinUtil {
             return new FilterKalahandi();
         } else if (395 == districtId && -1 == minAge) {
             return new TestFilter();
+        } else if (446 == districtId && -1 == minAge) {
+            return new TestFilter2();
         }
         return null;
     }
@@ -77,6 +79,9 @@ public class CowinUtil {
         } else if (395 == districtId && -1 == minAge) {
             token = "1783244153:AAHlr8fSauey9F1aNi0GWSHoJMgIXc_FJrQ";
             chatId = "@nojoinjrp";
+        } else if (446 == districtId && -1 == minAge) {
+            token = "1732888415:AAH0HkJI3fFHIWfp8w5R_WfNLqmA9Jlv3Bc";
+            chatId = "@nojoinjrp2";
         }
         return new TelegramClient(token, chatId);
     }

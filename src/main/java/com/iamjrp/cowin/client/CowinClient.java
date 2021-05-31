@@ -3,6 +3,7 @@ package com.iamjrp.cowin.client;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iamjrp.cowin.filters.IFilter;
+import com.iamjrp.cowin.model.BMessage;
 import com.iamjrp.cowin.model.Message;
 import com.iamjrp.cowin.model.Session;
 import com.iamjrp.cowin.model.SessionCalendarEntrySchema;
@@ -38,7 +39,7 @@ public class CowinClient {
 
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
-    private static BlockingQueue<List<Message>> queue = new LinkedBlockingQueue<>();
+    private static BlockingQueue<BMessage> queue = new LinkedBlockingQueue<>();
 
     @Autowired
     private Counter counter;
@@ -46,7 +47,7 @@ public class CowinClient {
     public String getSlots(String requestUri, int districtId, int minAge) {
         counter.increment();
         LOG.info("REST API hit counter : {} : {}", counter.getCount().get(), districtId);
-        if (counter.getCount().get() >= 200) {
+        if (counter.getCount().get() >= 5) {
             LOG.info("Clearing cache ...");
             hashCodeSet.clear(); //This will trigger full output, not the difference from prev call
             counter.reset();
@@ -54,9 +55,11 @@ public class CowinClient {
         HttpEntity<String> entity = CowinUtil.setHeader();
 
         final UriComponentsBuilder builder = getUriComponentsBuilder(requestUri, districtId);
+        LOG.info("URI : {}", builder.toUriString());
         try {
             final ResponseEntity<Object> slotsInfo =
                     restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, Object.class);
+
             final LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> mapBody =
                     (LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>>) slotsInfo.getBody();
             processResponse(mapBody, districtId, minAge);
@@ -66,8 +69,6 @@ public class CowinClient {
         }
         return "Message sent Successfully";
     }
-
-
 
     private UriComponentsBuilder getUriComponentsBuilder(String requestUri, int districtId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(requestUri)
@@ -80,8 +81,10 @@ public class CowinClient {
         final ArrayList<LinkedHashMap<String, String>> centers = Objects.requireNonNull(mapBody).get("centers");
         final ObjectMapper mapper = new ObjectMapper();
 
-        List<Message> MsgBatch = Collections.synchronizedList(new ArrayList<>());
+        List<Message> msgBatch = Collections.synchronizedList(new ArrayList<>());
         IFilter filter = CowinUtil.getFilter(districtId, minAge);
+
+        TelegramClient telegramClient = CowinUtil.getTelegramClient(districtId, minAge);
 
         for (LinkedHashMap<String, String> center: centers) {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -91,24 +94,28 @@ public class CowinClient {
                 if (filter.filter(session, pojo)) {
                     final Message message = getMessage(session, pojo);
                     if(hashCodeSet.add(message.hashCode())) { //This will avoid duplicate msg in cache
-                        MsgBatch.add(message);
+                        msgBatch.add(message);
                     }
                 }
             }
         }
-        if (!MsgBatch.isEmpty()) {
-            if(MsgBatch.size() > 20) {
-                final List<Message>[] partitions = getPartitions(MsgBatch);
+        if (!msgBatch.isEmpty()) {
+            if(msgBatch.size() > 20) {
+                final List<Message>[] partitions = getPartitions(msgBatch);
                 for(List<Message> partition : partitions) {
-                    queue.put(partition);
-                    TelegramClient telegramClient = CowinUtil.getTelegramClient(districtId, minAge);
-                    QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
+                    BMessage bMessage = new BMessage();
+                    bMessage.setTelegramClient(telegramClient);
+                    bMessage.setMessages(partition);
+                    queue.put(bMessage);
+                    QueueConsumerThread consumerThread = new QueueConsumerThread(queue);
                     executor.submit(consumerThread);
                 }
             } else {
-                queue.put(MsgBatch);
-                TelegramClient telegramClient = CowinUtil.getTelegramClient(districtId, minAge);
-                QueueConsumerThread consumerThread = new QueueConsumerThread(queue, telegramClient);
+                BMessage bMessage = new BMessage();
+                bMessage.setTelegramClient(telegramClient);
+                bMessage.setMessages(msgBatch);
+                queue.put(bMessage);
+                QueueConsumerThread consumerThread = new QueueConsumerThread(queue);
                 executor.submit(consumerThread);
             }
             
