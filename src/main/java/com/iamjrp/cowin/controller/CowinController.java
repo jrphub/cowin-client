@@ -21,6 +21,8 @@ public class CowinController {
     private static final int DIST_ID_BLR = 265;
     private static final int DIST_ID_HYD = 581;
 
+    private static final int DIST_ID_VZN = 15;
+
 
     @GetMapping("/kslots18")
     public String getVacSlotKhurda18() throws InterruptedException {
@@ -63,7 +65,7 @@ public class CowinController {
 
     @GetMapping("/vznslots")
     public String getVacSlotVzn() throws InterruptedException {
-        return cowinClient.getSlots(COWIN_URL, DIST_ID_KLH, 0);
+        return cowinClient.getSlots(COWIN_URL, DIST_ID_VZN, 0);
     }
 
     @GetMapping("/test")
