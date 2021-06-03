@@ -9,7 +9,7 @@ fi
 
 while true
 do
-  echo "Hyderabad - [40s] - [7 in 300]"
+  echo "Vizianagaram - [40s] - [7 in 300]"
   curl -i $URL/vznslots
   echo -e "\n"
   sleep 40
