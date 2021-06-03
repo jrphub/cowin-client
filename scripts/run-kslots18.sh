@@ -9,8 +9,8 @@ fi
 
 while true
 do
-  echo "Khurda18 - [10s] - [30 in 300]"
+  echo "Khurda18 - [15s] - [20 in 300]"
   curl -i $URL/kslots18
   echo -e "\n"
-  sleep 10
+  sleep 15
 done

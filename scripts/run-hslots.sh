@@ -9,8 +9,8 @@ fi
 
 while true
 do
-  echo "Hyderabad - [20] - [15 in 300]"
+  echo "Hyderabad - [40] - [7 in 300]"
   curl -i $URL/hslots
   echo -e "\n"
-  sleep 20
+  sleep 40s
 done

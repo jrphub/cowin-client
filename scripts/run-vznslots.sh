@@ -9,8 +9,8 @@ fi
 
 while true
 do
-  echo "Mumbai - [15s] - [20 in 300]"
-  curl -i $URL/mslots
+  echo "Hyderabad - [40s] - [7 in 300]"
+  curl -i $URL/vznslots
   echo -e "\n"
-  sleep 15
+  sleep 40
 done

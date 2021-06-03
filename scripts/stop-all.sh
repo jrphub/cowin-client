@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "Stopping all Process for Cowin-Client"
 mpid=`pgrep '[m]slots'`
 bpid=`pgrep '[b]slots'`
 hpid=`pgrep '[h]slots'`
@@ -12,6 +12,8 @@ cpid45=`pgrep '[c]slots45'`
 
 klhpid=`pgrep '[k]lhslots'`
 
+vznpid=`pgrep '[v]znslots'`
+
 kill $mpid
 kill $bpid
 kill $hpid
@@ -23,3 +25,8 @@ kill $cpid18
 kill $cpid45
 
 kill $klhpid
+
+kill $vznpid
+
+sleep 2
+echo "All Process stopped"

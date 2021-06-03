@@ -9,8 +9,8 @@ fi
 
 while true
 do
-  echo "Cuttack45 - [1m] - [3 in 300]"
+  echo "Cuttack45 - [20s] - [15 in 300]"
   curl -i $URL/cslots45
   echo -e "\n"
-  sleep 1m
+  sleep 20
 done

@@ -61,6 +61,11 @@ public class CowinController {
         return cowinClient.getSlots(COWIN_URL, DIST_ID_KLH, 0);
     }
 
+    @GetMapping("/vznslots")
+    public String getVacSlotVzn() throws InterruptedException {
+        return cowinClient.getSlots(COWIN_URL, DIST_ID_KLH, 0);
+    }
+
     @GetMapping("/test")
     public String getVacSlotForTest() throws InterruptedException {
         return cowinClient.getSlots(COWIN_URL, DIST_ID_MUM, -1);

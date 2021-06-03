@@ -41,6 +41,8 @@ public class CowinUtil {
             return new FilterHyderabad();
         } else if (464 == districtId && 0 == minAge) {
             return new FilterKalahandi();
+        } else if (15 == districtId && 0 == minAge) {
+            return new FilterVzn();
         } else if (395 == districtId && -1 == minAge) {
             return new TestFilter();
         } else if (446 == districtId && -1 == minAge) {
@@ -75,7 +77,10 @@ public class CowinUtil {
             chatId = "@cowin_hyd";
         } else if (464 == districtId && 0 == minAge) {
             token = "1861461791:AAGrcmW3KKWFTvlnQd4XPrVLKcbL1O-8m18";
-            chatId = "@@kh_bhw";
+            chatId = "@kh_bhw";
+        } else if (15 == districtId && 0 == minAge) {
+            token = "1807113005:AAH-SsLz8dztlkQAQvGv6rxPRF-xUtr9uss";
+            chatId = "-455848908";
         } else if (395 == districtId && -1 == minAge) {
             token = "1783244153:AAHlr8fSauey9F1aNi0GWSHoJMgIXc_FJrQ";
             chatId = "@nojoinjrp";
